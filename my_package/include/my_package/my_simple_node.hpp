@@ -40,6 +40,7 @@ private:
 
 
     rclcpp::TimerBase::SharedPtr _timer;
+    int _hz;
     int _count;
 };
 

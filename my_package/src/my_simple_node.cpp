@@ -10,18 +10,22 @@ using std::placeholders::_3;
 
 MySimpleNode::MySimpleNode(std::string name) : Node(name)
 {
+    //parameters
+    this->declare_parameter("hz", 20);
+    _hz = this->get_parameter("hz").as_int();
+
     //topic with namespace
     _publisher = this->create_publisher<std_msgs::msg::String>("~/output_topic", 10);
     //topci without namespace
     _subscriber = this->create_subscription<std_msgs::msg::String>("input_topic", 10, 
                                                                 std::bind(&MySimpleNode::simple_callback, 
                                                                 this, _1));
-
+    
     _service = this->create_service<SimpleSrv>("simple_service",
         std::bind(&MySimpleNode::simple_service, this, _1, _2));
 
-    _timer = this->create_wall_timer(
-    500ms, std::bind(&MySimpleNode::publish, this));
+    
+    _timer = this->create_wall_timer(std::chrono::milliseconds(1000/_hz), std::bind(&MySimpleNode::publish, this));
     _count = 0;
     RCLCPP_INFO(this->get_logger(), "Publisher created!!");
 }
