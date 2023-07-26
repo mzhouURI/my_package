@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="my_package" exec="my_simple_node" name="sim" namespace="node1"/>
+  <node pkg="my_package" exec="my_simple_node" name="sim" namespace="node2"/>
+
+</launch>

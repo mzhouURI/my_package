@@ -17,11 +17,11 @@ MySimpleNode::MySimpleNode(std::string name) : Node(name)
     //topic with namespace
     _publisher = this->create_publisher<std_msgs::msg::String>("~/output_topic", 10);
     //topci without namespace
-    _subscriber = this->create_subscription<std_msgs::msg::String>("input_topic", 10, 
+    _subscriber = this->create_subscription<std_msgs::msg::String>("~/input_topic", 10, 
                                                                 std::bind(&MySimpleNode::simple_callback, 
                                                                 this, _1));
     
-    _service = this->create_service<SimpleSrv>("simple_service",
+    _service = this->create_service<SimpleSrv>("~/simple_service",
         std::bind(&MySimpleNode::simple_service, this, _1, _2));
 
     
