@@ -30,6 +30,13 @@ ament_target_dependencies(${library_name} ${dependencies})
 add_executable(my_simple_node src/my_simple_node_main.cpp)
 target_link_libraries(my_simple_node ${library_name})
 ament_target_dependencies(my_simple_node ${dependencies})
+
+
+add_executable(yaml_test src/yaml_test_node.cpp)
+target_link_libraries(yaml_test ${library_name} yaml-cpp)
+ament_target_dependencies(yaml_test ${dependencies})
+
+
 # ##install target
 install(TARGETS my_simple_node ${library_name}
   ARCHIVE DESTINATION lib
