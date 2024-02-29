@@ -1,8 +1,8 @@
 <class_libraries>
-	<library path="mvp2_template_behavior">
-	  <class name="mvp2_helm/BehaviorTemplate" 
-	  		 type="mvp2_helm::BehaviorTemplate" 
-			 base_class_type="mvp2_helm::BehaviorBase">
+	<library path="mvp2_bhv_template">
+	  <class name="mvp2_mission/BehaviorTemplate" 
+	  		 type="mvp2_mission::BehaviorTemplate" 
+			 base_class_type="mvp2_mission::BehaviorBase">
 	    <description></description>
 	  </class>
 	</library>

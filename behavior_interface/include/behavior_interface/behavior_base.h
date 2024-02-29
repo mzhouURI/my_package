@@ -8,7 +8,7 @@
 #include "tf2_ros/buffer.h"
 #include <mvp_msgs/msg/control_process.hpp>
 
-namespace mvp2_helm
+namespace mvp2_mission
 {
 
 class BehaviorBase {
@@ -126,7 +126,9 @@ protected:
         *
         * @param state_name
     */
-    virtual void state_changed(const std::string& state_name) {}
+    virtual void state_changed(const std::string& state_name) {
+        printf("name=%s\n", state_name.c_str());
+    }
 
     virtual auto change_state(const std::string& state) -> bool final {
         return f_change_state(state);
@@ -185,6 +187,6 @@ public:
     typedef std::shared_ptr<BehaviorBase> Ptr;
 };
 
-} // namespace mvp2_helm
+} // namespace mvp2_mission
 
 #endif  // MVP2_MISSION__BEHAVIOR_BASE_

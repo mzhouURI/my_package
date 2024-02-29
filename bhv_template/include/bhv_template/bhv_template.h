@@ -13,6 +13,7 @@
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "geometry_msgs/msg/twist.hpp"
+#include "std_msgs/msg/string.hpp"
 // #include "nav2_util/simple_action_server.hpp"
 #include "mvp2_util/robot_utils.hpp"
 #include "behavior_interface/behavior_base.h"
@@ -21,7 +22,7 @@
 #include "tf2/utils.h"
 #pragma GCC diagnostic pop
 
-namespace mvp2_helm 
+namespace mvp2_mission 
 {
 
 using namespace std::chrono_literals;  //NOLINT
@@ -84,6 +85,6 @@ public:
 
 };
 
-} // namespace mvp2_helm
+} // namespace mvp2_mission
 
 #endif // MVP2_MISSION__BEHAVIOR_TEMPLATE_

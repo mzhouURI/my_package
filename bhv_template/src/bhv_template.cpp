@@ -1,7 +1,7 @@
 #include "bhv_template/bhv_template.h"
 #include "mvp2_util/node_utils.hpp"
 
-using namespace mvp2_helm;
+using namespace mvp2_mission;
 
 void BehaviorTemplate::initialize(
     const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
@@ -10,9 +10,9 @@ void BehaviorTemplate::initialize(
     m_node = parent;
     auto node = m_node.lock();
 
-    m_logger = m_node->get_logger();
+    m_logger = node->get_logger();
 
-    RCLCPP_INFO(logger_, "Configuring %s", name.c_str());
+    RCLCPP_INFO(m_logger, "Configuring %s", name.c_str());
 
     // set up parameters
     mvp2_util::declare_parameter_if_not_declared(
@@ -60,6 +60,10 @@ void BehaviorTemplate::disabled() {
     std::cout << "Template behavior is disabled!" << std::endl;
 }
 
+void BehaviorTemplate::templateCallback(const std_msgs::msg::String::SharedPtr msg) {
+    printf("bhv template received: %s\n", msg->data.c_str());
+}
+
 bool BehaviorTemplate::request_set_point(
     mvp_msgs::msg::ControlProcess *set_point) {
 
@@ -101,4 +105,4 @@ bool BehaviorTemplate::request_set_point(
 }
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(mvp2_helm::BehaviorTemplate, mvp2_helm::BehaviorBase)
+PLUGINLIB_EXPORT_CLASS(mvp2_mission::BehaviorTemplate, mvp2_mission::BehaviorBase)
