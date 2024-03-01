@@ -72,6 +72,24 @@ public:
         */
     BehaviorTemplate();
 
+    // Activate server on lifecycle transition
+    void activate() override
+    {
+        RCLCPP_INFO(m_logger, "Activating %s", m_name.c_str());
+    }
+
+    // Deactivate server on lifecycle transition
+    void deactivate() override
+    {
+        RCLCPP_INFO(m_logger, "Deactivating %s", m_name.c_str());
+    }
+
+    // Cleanup server on lifecycle transition
+    void cleanup() override
+    {
+        RCLCPP_INFO(m_logger, "Cleanuping %s", m_name.c_str());
+    }
+
     /**
         * @brief Request set point from the behavior. It is consumed by helm.
         *

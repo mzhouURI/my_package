@@ -30,7 +30,6 @@ Helm::~Helm()
   behaviors_.clear();
 }
 
-
 mvp2_util::CallbackReturn
 Helm::on_configure(const rclcpp_lifecycle::State & /*state*/)
 {
@@ -53,7 +52,7 @@ Helm::loadBehaviorPlugins()
   auto node = shared_from_this();
 
   for (size_t i = 0; i != behavior_ids_.size(); i++) {
-    behavior_types_[i] = nav2_util::get_plugin_type_param(node, behavior_ids_[i]);
+    behavior_types_[i] = mvp2_util::get_plugin_type_param(node, behavior_ids_[i]);
     try {
       RCLCPP_INFO(
         get_logger(), "Creating behavior plugin %s of type %s",
@@ -72,4 +71,66 @@ Helm::loadBehaviorPlugins()
   return true;
 }
 
+mvp2_util::CallbackReturn
+Helm::on_activate(const rclcpp_lifecycle::State & /*state*/)
+{
+  RCLCPP_INFO(get_logger(), "Activating");
+  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
+  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
+    (*iter)->activate();
+  }
+
+  // create bond connection
+  createBond();
+
+  return mvp2_util::CallbackReturn::SUCCESS;
+}
+
+mvp2_util::CallbackReturn
+Helm::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
+{
+  RCLCPP_INFO(get_logger(), "Deactivating");
+
+  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
+  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
+    (*iter)->deactivate();
+  }
+
+  // destroy bond connection
+  destroyBond();
+
+  return mvp2_util::CallbackReturn::SUCCESS;
+}
+
+
+mvp2_util::CallbackReturn
+Helm::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
+{
+  RCLCPP_INFO(get_logger(), "Cleaning up");
+
+  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
+  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
+    (*iter)->cleanup();
+  }
+
+  behaviors_.clear();
+  // reset sub
+  // test_sub_.reset();
+
+  return mvp2_util::CallbackReturn::SUCCESS;
+}
+
+mvp2_util::CallbackReturn
+Helm::on_shutdown(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(get_logger(), "Shutting down");
+  return mvp2_util::CallbackReturn::SUCCESS;
+}
+
 } // namespace mvp2_mission
+
+#include "rclcpp_components/register_node_macro.hpp"
+// Register the component with class_loader.
+// This acts as a sort of entry point, allowing the component to be discoverable when its library
+// is being loaded into a running process.
+RCLCPP_COMPONENTS_REGISTER_NODE(mvp2_mission::Helm)

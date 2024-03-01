@@ -18,15 +18,6 @@ private:
     friend class BehaviorContainer;
 
     /**
-        * @brief Unique name for the behavior.
-        * This name will later be used as namespace for ros node handler.
-        *
-        * @todo A behavior may or may not use a parameter from ROS. However,
-        *       this name is still a necessity.
-        */
-    std::string m_name;
-
-    /**
         * @brief Frequency of the helm
         */
     double m_helm_frequency;
@@ -92,6 +83,15 @@ private:
 
 protected:
     /**
+        * @brief Unique name for the behavior.
+        * This name will later be used as namespace for ros node handler.
+        *
+        * @todo A behavior may or may not use a parameter from ROS. However,
+        *       this name is still a necessity.
+        */
+    std::string m_name;
+    
+    /**
         * @brief A vector holds controlled DOFs by behavior
         * Each behavior must present the degrees of freedoms that they want
         * to control. Helm will be controlling this information during
@@ -120,6 +120,23 @@ protected:
         * A plugin may or may not override this function.
         */
     virtual void disabled() = 0;
+
+    // test for ROS2 state machine
+
+    /**
+    * @brief Method to active Behavior and any threads involved in execution.
+    */
+    virtual void activate() = 0;
+
+    /**
+    * @brief Method to deactive Behavior and any threads involved in execution.
+    */
+    virtual void deactivate() = 0;
+
+    /**
+    * @brief Method to cleanup resources used on shutdown.
+    */
+    virtual void cleanup() = 0;
 
     /**
         * @brief

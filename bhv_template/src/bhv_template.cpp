@@ -12,6 +12,7 @@ void BehaviorTemplate::initialize(
 
     m_logger = node->get_logger();
 
+    m_name = name;
     RCLCPP_INFO(m_logger, "Configuring %s", name.c_str());
 
     // set up parameters

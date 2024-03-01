@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>bhv_template</name>
+  <name>mvp2_helm</name>
   <version>0.0.0</version>
   <description>TODO</description>
   <maintainer email="linzhao@uri.edu">Lin Zhao</maintainer>
@@ -36,12 +36,4 @@
   <exec_depend>behavior_interface</exec_depend>
   <exec_depend>pluginlib</exec_depend>
 
-  <!-- <test_depend>ament_lint_common</test_depend>
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_cmake_gtest</test_depend> -->
-
-  <export>
-    <build_type>ament_cmake</build_type>
-    <behavior_interface plugin="${prefix}/behavior_plugin.xml" />
-  </export>
 </package>
