@@ -21,12 +21,8 @@ find_package(pluginlib REQUIRED)
 
 mvp2_package()
 
-include_directories(
-  include
-)
-
 set(library_name helm)
-set(executable_name main_node)
+set(executable_name mvp2_helm)
 
 set(dependencies
   rclcpp
@@ -46,11 +42,14 @@ set(dependencies
   pluginlib
 )
 
+include_directories(
+  include
+)
+
 # Library
 add_library(${library_name} SHARED
   include/mvp2_helm/helm.cpp
 )
-
 ament_target_dependencies(${library_name}
   ${dependencies}
 )
@@ -59,27 +58,32 @@ ament_target_dependencies(${library_name}
 add_executable(${executable_name}
   src/main.cpp
 )
-
-target_link_libraries(${executable_name} ${library_name})
-
+target_link_libraries(${executable_name} 
+  ${library_name}
+)
 ament_target_dependencies(${executable_name}
   ${dependencies}
 )
 
 rclcpp_components_register_nodes(${library_name} "mvp2_mission::Helm")
 
-install(TARGETS ${library_name}
+# Install
+install(TARGETS ${library_name} ${executable_name}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-install(TARGETS ${executable_name}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY include/
   DESTINATION include/
+)
+
+install(DIRECTORY launch 
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY params 
+  DESTINATION share/${PROJECT_NAME}
 )
 
 # if(BUILD_TESTING)
@@ -90,7 +94,6 @@ install(DIRECTORY include/
 # endif()
 
 ament_export_include_directories(include)
-ament_export_libraries(${library_name}
-)
+ament_export_libraries(${library_name})
 ament_export_dependencies(${dependencies})
 ament_package()

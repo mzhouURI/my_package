@@ -1,0 +1,9 @@
+mvp2_helm:
+  ros__parameters:
+    cycle_frequency: 10.0
+    behavior_plugins: ["template"]
+    template:
+      plugin: "mvp2_mission/BehaviorTemplate"
+    global_frame: odom
+    robot_base_frame: base_link
+    use_sim_time: true

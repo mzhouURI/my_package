@@ -9,7 +9,7 @@ namespace mvp2_mission
 {
 
 Helm::Helm(const rclcpp::NodeOptions & options)
-: LifecycleNode("behavior_server_helm", "", options),
+: LifecycleNode("mvp2_helm", "", options),
   plugin_loader_("behavior_interface", "mvp2_mission::BehaviorBase"),
   default_ids_{"template"},
   default_types_{"mvp2_mission/BehaviorTemplate"}
