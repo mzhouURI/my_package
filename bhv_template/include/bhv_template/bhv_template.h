@@ -58,6 +58,7 @@ private:
     void templateCallback(const std_msgs::msg::String::SharedPtr msg);
 
     // ros2 related
+    rclcpp::Node::WeakPtr m_cpp_node;
     rclcpp_lifecycle::LifecycleNode::WeakPtr m_node;
     rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>::SharedPtr m_str_pub;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr m_str_sub;
