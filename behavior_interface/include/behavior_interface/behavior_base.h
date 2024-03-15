@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
-#include "mvp2_util/lifecycle_node.hpp"
+// #include "mvp2_util/lifecycle_node.hpp"
 #include "tf2_ros/buffer.h"
 #include <mvp_msgs/msg/control_process.hpp>
 
@@ -14,8 +14,6 @@ namespace mvp2_mission
 class BehaviorBase {
 private:
     friend class Helm;
-
-    friend class BehaviorContainer;
 
     /**
         * @brief Frequency of the helm
@@ -122,21 +120,20 @@ protected:
     virtual void disabled() = 0;
 
     // test for ROS2 state machine
+    // /**
+    // * @brief Method to active Behavior and any threads involved in execution.
+    // */
+    // virtual void activate() = 0;
 
-    /**
-    * @brief Method to active Behavior and any threads involved in execution.
-    */
-    virtual void activate() = 0;
+    // /**
+    // * @brief Method to deactive Behavior and any threads involved in execution.
+    // */
+    // virtual void deactivate() = 0;
 
-    /**
-    * @brief Method to deactive Behavior and any threads involved in execution.
-    */
-    virtual void deactivate() = 0;
-
-    /**
-    * @brief Method to cleanup resources used on shutdown.
-    */
-    virtual void cleanup() = 0;
+    // /**
+    // * @brief Method to cleanup resources used on shutdown.
+    // */
+    // virtual void cleanup() = 0;
 
     /**
         * @brief
@@ -195,7 +192,7 @@ public:
     * @param  tf A pointer to a TF buffer
     */
     virtual void initialize(
-        const rclcpp_lifecycle::LifecycleNode::WeakPtr &parent,
+        const rclcpp::Node::WeakPtr &parent,
         const std::string &name) = 0;
 
     /**

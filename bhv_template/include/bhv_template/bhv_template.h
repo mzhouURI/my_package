@@ -14,7 +14,6 @@
 #include "tf2_ros/create_timer_ros.h"
 #include "geometry_msgs/msg/twist.hpp"
 #include "std_msgs/msg/string.hpp"
-// #include "nav2_util/simple_action_server.hpp"
 #include "mvp2_util/robot_utils.hpp"
 #include "behavior_interface/behavior_base.h"
 #pragma GCC diagnostic push
@@ -48,7 +47,7 @@ private:
     * @param  tf A pointer to a TF buffer
     */
     virtual void initialize(
-        const rclcpp_lifecycle::LifecycleNode::WeakPtr &parent,
+        const rclcpp::Node::WeakPtr &parent,
         const std::string &name) override;
 
     /**
@@ -58,9 +57,8 @@ private:
     void templateCallback(const std_msgs::msg::String::SharedPtr msg);
 
     // ros2 related
-    rclcpp::Node::WeakPtr m_cpp_node;
-    rclcpp_lifecycle::LifecycleNode::WeakPtr m_node;
-    rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>::SharedPtr m_str_pub;
+    rclcpp::Node::WeakPtr m_node;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_str_pub;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr m_str_sub;
     rclcpp::Logger m_logger{rclcpp::get_logger("mvp2_mission")};
 
@@ -72,24 +70,6 @@ public:
         * @brief Trivial constructor
         */
     BehaviorTemplate();
-
-    // Activate server on lifecycle transition
-    void activate() override
-    {
-        RCLCPP_INFO(m_logger, "Activating %s", m_name.c_str());
-    }
-
-    // Deactivate server on lifecycle transition
-    void deactivate() override
-    {
-        RCLCPP_INFO(m_logger, "Deactivating %s", m_name.c_str());
-    }
-
-    // Cleanup server on lifecycle transition
-    void cleanup() override
-    {
-        RCLCPP_INFO(m_logger, "Cleanuping %s", m_name.c_str());
-    }
 
     /**
         * @brief Request set point from the behavior. It is consumed by helm.

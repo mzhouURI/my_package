@@ -5,18 +5,21 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <thread>
 
-#include "mvp2_util/lifecycle_node.hpp"
+#include "mvp2_util/node_thread.hpp"
+#include "node_wrapper.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "pluginlib/class_loader.hpp"
 #include "pluginlib/class_list_macros.hpp"
 #include "behavior_interface/behavior_base.h"
+#include "std_msgs/msg/string.hpp"
 
 namespace mvp2_mission
 {
 
-class Helm : public mvp2_util::LifecycleNode
+class Helm : public mvp2_mission::NodeWrapper
 {
 public:
     /**
@@ -32,33 +35,29 @@ public:
     */
     bool loadBehaviorPlugins();
 
+
+    void initialize();
+
+    void loop();
+
 protected:
-  /**
-   * @brief Activate lifecycle server
-   */
-  mvp2_util::CallbackReturn on_activate(const rclcpp_lifecycle::State & state) override;
+  //! Dedicated callback group and executor for behavior management
+  //! in order to isolate each behavior sub/pub.
+  rclcpp::CallbackGroup::SharedPtr callback_group_;
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::unique_ptr<mvp2_util::NodeThread> executor_thread_;
+  rclcpp::TimerBase::SharedPtr helm_timer_;
+  void timer_callback();
 
-  /**
-   * @brief Deactivate lifecycle server
-   */
-  mvp2_util::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state) override;
+  std::thread m_controller_worker;
 
-  /**
-   * @brief Cleanup lifecycle server
-   */
-  mvp2_util::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state) override;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
-  ////////////////////////////////////////////////////////////////////////////
-  
-  /**
-   * @brief Configure lifecycle server
-   */
-  mvp2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & state) override;
-
-  /**
-   * @brief Shutdown lifecycle server
-   */
-  mvp2_util::CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state) override;
+  void topic_callback(const std_msgs::msg::String & msg) const
+  {
+    RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.data.c_str());
+  }
 
   /**
    * @brief bhv container

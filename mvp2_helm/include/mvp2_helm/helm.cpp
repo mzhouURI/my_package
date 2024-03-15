@@ -5,15 +5,20 @@
 #include "mvp2_util/node_utils.hpp"
 #include "mvp2_helm/helm.h"
 
+using namespace std::chrono_literals;
+
 namespace mvp2_mission 
 {
 
 Helm::Helm(const rclcpp::NodeOptions & options)
-: LifecycleNode("mvp2_helm", "", options),
+: NodeWrapper("mvp2_helm", "", options),
   plugin_loader_("behavior_interface", "mvp2_mission::BehaviorBase"),
   default_ids_{"template"},
   default_types_{"mvp2_mission/BehaviorTemplate"}
 {
+    RCLCPP_INFO(get_logger(), "helm constructor");
+
+    // parameters
     declare_parameter("behavior_plugins", default_ids_);
     get_parameter("behavior_plugins", behavior_ids_);
 
@@ -23,6 +28,30 @@ Helm::Helm(const rclcpp::NodeOptions & options)
         declare_parameter(default_ids_[i] + ".plugin", default_types_[i]);
         }
     }
+
+    // normal ros setup
+    publisher_ = this->create_publisher<std_msgs::msg::String>("topic_pub", 10);
+    subscription_ = this->create_subscription<std_msgs::msg::String>(
+      "topic_sub", 10, std::bind(&Helm::topic_callback, this, std::placeholders::_1));
+
+
+    //! init a individual thread for behavior management
+    callback_group_ = create_callback_group(
+      rclcpp::CallbackGroupType::MutuallyExclusive, false);  
+
+    auto cb_opt = rclcpp::SubscriptionOptions();
+    cb_opt.callback_group = callback_group_;
+
+    helm_timer_ = this->create_wall_timer(
+      std::chrono::milliseconds(1000),
+      //! this make one time callback ?
+      // [this]() -> void { helm_timer_->cancel(); timer_callback();},
+      [this]() -> void {timer_callback();},
+      callback_group_);
+
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor_->add_callback_group(callback_group_, get_node_base_interface());
+    executor_thread_ = std::make_unique<mvp2_util::NodeThread>(executor_); 
 }
 
 Helm::~Helm()
@@ -30,20 +59,42 @@ Helm::~Helm()
   behaviors_.clear();
 }
 
-mvp2_util::CallbackReturn
-Helm::on_configure(const rclcpp_lifecycle::State & /*state*/)
-{
-  RCLCPP_INFO(get_logger(), "Configuring");
 
-  // setup some pub & sub
+void Helm::initialize() {
 
-  // load behaviors
-  behavior_types_.resize(behavior_ids_.size());
-  if (!loadBehaviorPlugins()) {
-    return mvp2_util::CallbackReturn::FAILURE;
+    // configure plugins
+    RCLCPP_INFO(get_logger(), "Configuring");
+    behavior_types_.resize(behavior_ids_.size());
+    if (!loadBehaviorPlugins()) {
+      RCLCPP_INFO(get_logger(), "Plugins configured failed!");
+      std::exit(EXIT_FAILURE);
+    }          
+
+    // new working thread
+    m_controller_worker = std::thread([this] { loop(); });
+    m_controller_worker.detach();    
+}
+
+void Helm::loop() {
+
+  //! running rclcpp::shutdown() will shutdown the system ?
+  // rclcpp::Rate r(2);
+  // while(rclcpp::ok() && !rclcpp::shutdown()) {
+  //     RCLCPP_INFO(get_logger(), "hi from helm loop");
+  //     r.sleep();
+  // }
+
+  rclcpp::Rate r(1);
+  while(rclcpp::ok()) {
+    RCLCPP_INFO(get_logger(), "hi from helm loop");
+    r.sleep();
+    // std::chrono::milliseconds dura(500);
+    // std::this_thread::sleep_for(dura);
   }
+}
 
-  return mvp2_util::CallbackReturn::SUCCESS;
+void Helm::timer_callback() {
+  RCLCPP_INFO(get_logger(), "hi from helm additional timer callback!");
 }
 
 bool 
@@ -71,61 +122,6 @@ Helm::loadBehaviorPlugins()
   return true;
 }
 
-mvp2_util::CallbackReturn
-Helm::on_activate(const rclcpp_lifecycle::State & /*state*/)
-{
-  RCLCPP_INFO(get_logger(), "Activating");
-  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
-  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
-    (*iter)->activate();
-  }
-
-  // create bond connection
-  createBond();
-
-  return mvp2_util::CallbackReturn::SUCCESS;
-}
-
-mvp2_util::CallbackReturn
-Helm::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
-{
-  RCLCPP_INFO(get_logger(), "Deactivating");
-
-  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
-  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
-    (*iter)->deactivate();
-  }
-
-  // destroy bond connection
-  destroyBond();
-
-  return mvp2_util::CallbackReturn::SUCCESS;
-}
-
-
-mvp2_util::CallbackReturn
-Helm::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
-{
-  RCLCPP_INFO(get_logger(), "Cleaning up");
-
-  std::vector<pluginlib::UniquePtr<mvp2_mission::BehaviorBase>>::iterator iter;
-  for (iter = behaviors_.begin(); iter != behaviors_.end(); ++iter) {
-    (*iter)->cleanup();
-  }
-
-  behaviors_.clear();
-  // reset sub
-  // test_sub_.reset();
-
-  return mvp2_util::CallbackReturn::SUCCESS;
-}
-
-mvp2_util::CallbackReturn
-Helm::on_shutdown(const rclcpp_lifecycle::State &)
-{
-  RCLCPP_INFO(get_logger(), "Shutting down");
-  return mvp2_util::CallbackReturn::SUCCESS;
-}
 
 } // namespace mvp2_mission
 

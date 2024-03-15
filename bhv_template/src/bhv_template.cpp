@@ -4,7 +4,7 @@
 using namespace mvp2_mission;
 
 void BehaviorTemplate::initialize(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
+    const rclcpp::Node::WeakPtr & parent,
     const std::string & name) 
 {
     m_node = parent;
@@ -22,7 +22,6 @@ void BehaviorTemplate::initialize(
     node->get_parameter("test_double", m_test_double);
 
     // ros 
-    // m_str_pub = node->template create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
     m_str_pub = node->create_publisher<std_msgs::msg::String>("str_pub", 10);
 
     m_str_sub = node->create_subscription<std_msgs::msg::String>(
@@ -62,7 +61,11 @@ void BehaviorTemplate::disabled() {
 }
 
 void BehaviorTemplate::templateCallback(const std_msgs::msg::String::SharedPtr msg) {
-    printf("bhv template received: %s\n", msg->data.c_str());
+    RCLCPP_INFO(this->m_logger, "bhv template received: '%s'", msg->data.c_str());
+
+    auto message = std_msgs::msg::String();
+    message.data = msg->data;
+    m_str_pub->publish(message);
 }
 
 bool BehaviorTemplate::request_set_point(
